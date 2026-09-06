@@ -313,6 +313,16 @@ button { font: inherit; color: inherit; }
   background: var(--paper);
 }
 
+/* Empty columns to the right, ruled like the real ones — a file viewer
+   with nothing selected yet still looks like a file viewer. */
+.browser::after {
+  content: "";
+  flex: 1 0 auto;
+  min-width: 0;
+  background-image: linear-gradient(90deg, transparent 175px, var(--rule) 175px, var(--rule) 176px);
+  background-size: 176px 100%;
+}
+
 .col {
   flex: 0 0 176px;
   min-width: 176px;
@@ -443,13 +453,15 @@ button { font: inherit; color: inherit; }
   background: #0d0f11;
   color: #d7dbdd;
   font: 12.5px/1.6 var(--mono);
-  padding: 12px 14px 18px;
   overflow-y: auto;
   direction: rtl;
+}
+.term .term-in {
+  direction: ltr;
+  padding: 12px 14px 18px;
   white-space: pre-wrap;
   word-break: break-word;
 }
-.term > * { direction: ltr; }
 .term::-webkit-scrollbar { width: 13px; }
 .term::-webkit-scrollbar-track { background: #1b1f22; }
 .term::-webkit-scrollbar-thumb { background: #4a5257; border: 1px solid #000; }
@@ -518,6 +530,7 @@ button { font: inherit; color: inherit; }
 
   /* One column at a time, with a path bar to climb back out. */
   .browser { flex-direction: column; overflow: visible; }
+  .browser::after { display: none; }
   .col { display: none; }
   .col:last-child { display: block; flex: 1 1 auto; min-height: 220px; }
   .col li { padding: 8px 6px; font-size: 15px; }

@@ -23,7 +23,7 @@ const TREE = [
       <p class="kicker">Software engineer · Sønderborg, Denmark</p>
       <p>I study software engineering at the University of Southern Denmark and work part-time as an engineer at 2ai. I build AI systems that go into production and stay there: agents with real tools, the pipelines that feed them, and the web and backend services around them.</p>
       <p>Most of what I ship is the unglamorous half. Which tool an agent is allowed to call. The evaluation run that catches a bad answer before a customer reads it. The container that has to come back up on its own at three in the morning. I run the deployments for the services I own, so I find out quickly when I got that wrong.</p>
-      <p>In June 2026 my team was one of four named by the Council of Europe at its Democracy Hackathon in Strasbourg, out of twenty teams from sixteen countries. We built <a href="#" data-open="agnospeech">AgnoSpeech</a>, and the Council published a <a href="https://www.coe.int/en/web/new-democratic-pact-for-europe/2026-hackathon" target="_blank" rel="noopener">write-up of it</a>. That week moved what I want to work on: systems where the interesting constraint is what the software must refuse to do.</p>
+      <p>In June 2026 my team was named a finalist at the Council of Europe Democracy Hackathon in Strasbourg — one of four teams out of twenty, from sixteen countries. We built <a href="#" data-open="agnospeech">AgnoSpeech</a>, and the Council published a <a href="https://www.coe.int/en/web/new-democratic-pact-for-europe/2026-hackathon" target="_blank" rel="noopener">write-up of it</a>. That week moved what I want to work on: systems where the interesting constraint is what the software must refuse to do.</p>
       <h2>Right now</h2>
       <ul>
         <li>Agent tooling and the company data discovery service at 2ai</li>
@@ -74,7 +74,7 @@ const TREE = [
     name: "Projects", kind: "dir", children: [
       {
         name: "AgnoSpeech", kind: "doc", body: doc(`
-          <span class="flag">Council of Europe · recognised team, 2026 Democracy Hackathon</span>
+          <span class="flag">Council of Europe finalist · 4 of 20 teams</span>
           <h1>AgnoSpeech</h1>
           <p class="kicker">Team ALL FOR ONE, Moldova · Palais de l'Europe, Strasbourg · 17–19 June 2026</p>
           <p>Hate speech detectors read raw text, and raw text hands them a shortcut. Dialect and writing style predict harm well enough that a model quietly starts scoring who wrote something instead of what it says. The same text also fingerprints its author, which is why the records a helpline collects cannot simply be handed to a researcher — the tools built to defend a community end up exposing it.</p>
@@ -85,7 +85,7 @@ const TREE = [
             <li>Built and deployed the workbench the jury used to run it live.</li>
           </ul>
           <h2>The result</h2>
-          <p>Out of 20 teams from 16 countries, four were named by the Council of Europe at the close of the hackathon. ALL FOR ONE was one of them, on the privacy-preserving hate speech detection challenge mentored by a researcher from the Technical University of Munich. The Council published a write-up of the project.</p>
+          <p>Twenty teams from sixteen countries competed across four challenges. ALL FOR ONE was named a finalist — one of the four teams the Council of Europe singled out — on the privacy-preserving hate speech detection challenge, mentored by a researcher from the Technical University of Munich. The Council published a write-up of the project on its own site.</p>
           <p><a class="btn" href="https://www.coe.int/en/web/new-democratic-pact-for-europe/2026-hackathon" target="_blank" rel="noopener">Read it on coe.int</a></p>
         `)
       },
@@ -471,39 +471,51 @@ function makeColumn(items, depth, host) {
 
 /* ---------- launchers ---------- */
 
-function room() {
+const clamp = (lo, v, hi) => Math.max(lo, Math.min(v, hi));
+
+/* One layout, computed once, so the three windows land as a composition
+   rather than a pile. */
+function layout() {
   const dockW = window.innerWidth > 860 ? 76 : 0;
-  return { w: window.innerWidth - dockW, h: window.innerHeight };
+  const w = window.innerWidth - dockW;
+  const h = window.innerHeight;
+  const wide = w >= 1300;            // two columns of windows, still clear of the menu
+  const tall = h >= 760;             // room for the terminal underneath
+
+  const colW = wide ? 576 : clamp(320, w - 120, 620);
+  const docW = wide ? 576 : clamp(340, w - 160, 600);
+  const groupW = wide ? colW + 16 + docW : Math.max(colW, docW);
+  const left = clamp(wide ? 176 : 20, Math.round((w - groupW) / 2), 520);
+
+  const vH = tall ? clamp(300, h - 460, 460) : clamp(260, h - 140, 460);
+  const tH = clamp(200, h - 130 - vH, 340);
+  const groupH = tall ? vH + 16 + tH : vH;
+  const top = clamp(54, Math.round((h - groupH) / 2) - 20, 130);
+
+  const viewer = { x: left, y: top, w: colW, h: vH };
+  const term = { x: left, y: top + vH + 16, w: colW, h: tH };
+  const docX = wide ? left + colW + 16 : clamp(20, left + 44, w - docW - 20);
+  const doc = { x: docX, y: top + (wide ? 24 : 54), w: docW, h: clamp(300, groupH - 48, 700) };
+
+  return { viewer, term, doc, wide, tall, w, h };
 }
 
 function openViewer() {
-  const r = room();
+  const L = layout();
   const host = document.createElement("div");
   host.style.cssText = "flex:1;min-width:0;display:flex;flex-direction:column";
   renderBrowser(host);
-  makeWindow("viewer", {
-    title: "Workspace",
-    x: Math.max(20, 176), y: 54,
-    w: Math.min(672, r.w - 200), h: Math.min(432, r.h - 120),
-    content: host,
-  });
+  makeWindow("viewer", { title: "Workspace", ...L.viewer, content: host });
 }
 
 function openDoc(node) {
-  const r = room();
   const wrap = document.createElement("div");
   wrap.className = "scroller";
   const d = document.createElement("div");
   d.className = "doc";
   d.innerHTML = node.body;
   wrap.append(d);
-  const w = Math.min(560, r.w - 60);
-  makeWindow("doc", {
-    title: node.name,
-    x: Math.max(20, Math.min(176 + 690, r.w - w - 24)), y: 116,
-    w, h: Math.min(456, r.h - 170),
-    content: wrap,
-  });
+  makeWindow("doc", { title: node.name, ...layout().doc, content: wrap });
 }
 
 function openNamed(key) {
@@ -540,13 +552,12 @@ function pathTo(list, target, acc = []) {
 
 const SCRIPT = [
   ["out", "Workspace 4.2 — Sønderborg. Last login from a train."],
-  ["out", ""],
   ["cmd", "whoami"],
   ["out", "Maxim Dnestreanschii — software engineer. SDU, and 2ai part-time."],
   ["out", ""],
   ["cmd", "what --do-you-build"],
-  ["out", "Agents with real tools. The pipelines that feed them."],
-  ["out", "The interfaces on top and the deployments underneath."],
+  ["out", "Agents with real tools, the pipelines that feed them,"],
+  ["out", "the interfaces on top and the deployments underneath."],
   ["out", ""],
   ["cmd", "ls open-to/"],
   ["out", "summer-internship/   research-assistant/   thesis-collaboration/"],
@@ -556,16 +567,12 @@ const SCRIPT = [
 ];
 
 function openTerminal() {
-  const r = room();
+  const shell = document.createElement("div");
+  shell.className = "term";
   const pre = document.createElement("div");
-  pre.className = "term";
-  const w = Math.min(520, r.w - 60);
-  makeWindow("terminal", {
-    title: "Terminal",
-    x: Math.max(20, r.w - w - 40), y: Math.min(300, r.h - 260),
-    w, h: 258,
-    content: pre,
-  });
+  pre.className = "term-in";
+  shell.append(pre);
+  makeWindow("terminal", { title: "Terminal", ...layout().term, content: shell });
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let i = 0;
@@ -577,7 +584,7 @@ function openTerminal() {
     const [kind, text] = SCRIPT[i++];
     if (kind === "cmd") pre.insertAdjacentHTML("beforeend", `<span class="p">~ %</span> <span class="c">${text}</span>\n`);
     else pre.insertAdjacentText("beforeend", text + "\n");
-    pre.scrollTop = pre.scrollHeight;
+    shell.scrollTop = shell.scrollHeight;
     setTimeout(write, reduce ? 0 : (kind === "cmd" ? 260 : 90));
   };
   write();
@@ -639,5 +646,6 @@ openViewer();
 path = [TREE[0]];
 renderBrowser(wins.get("viewer").body.firstChild);
 openDoc(TREE[0]);
+if (layout().tall && window.innerWidth > 860) openTerminal();
 bringToFront(wins.get("viewer"));
 syncChrome();
