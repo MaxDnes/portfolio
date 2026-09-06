@@ -413,6 +413,7 @@ button { font: inherit; color: inherit; }
 .doc {
   padding: 22px 26px 30px;
   max-width: 62ch;
+  margin: 0 auto;   /* the left-hand scroller sets rtl; keep the page centred */
 }
 .doc h1 {
   font-size: 21px;
@@ -744,4 +745,23 @@ button { font: inherit; color: inherit; }
     transition-duration: .001ms !important;
   }
   .term .caret { animation: none; }
+}
+
+/* Step lights — the sequencer's position, sixteen to the bar */
+.player .steps {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 2px;
+  margin: 10px 0 2px;
+}
+.player .steps i {
+  height: 9px;
+  background: #c2c2c2;
+  border: 1px solid #8a8a8a;
+  box-shadow: inset 1px 1px 0 rgba(0,0,0,.12);
+}
+.player .steps i:nth-child(4n+1) { background: #ababab; }
+.player .steps i.on {
+  background: var(--oxide);
+  border-color: #6d2312;
 }

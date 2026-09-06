@@ -784,7 +784,7 @@ function openPrefs() {
 
   const rest = document.createElement("div");
   rest.innerHTML =
-    `<h2>Sound</h2><p>The Workspace theme is generated in the browser, note by note, so there is no audio file to load. It never starts on its own.</p>` +
+    `<h2>Sound</h2><p><b>Night Build</b> is a four-bar loop in D minor — kick, hats, bass, a held chord and a lead through a dotted-eighth delay. Every note is scheduled into the browser a fraction of a second before it sounds, so there is no audio file to download. It never starts on its own.</p>` +
     `<p><a class="btn" href="#" data-act="open:sound">Open the player</a></p>`;
   d.append(rest);
 
@@ -798,63 +798,236 @@ function openPrefs() {
   setPattern(document.body.dataset.pattern || "slate");
 }
 
-/* ---------- sound: generated, never automatic ---------- */
+/* ---------- sound: a sequenced track, never automatic ----------------------
+
+   "Night Build" — 92 BPM, four bars in D minor on a loop: kick, hats, a
+   snap, a bass line, a held chord and a lead through a dotted-eighth delay.
+   There is no audio file. Every note is scheduled into the Web Audio graph
+   a fraction of a second before it sounds, which is why the step lights in
+   the player stay in time with it.
+   -------------------------------------------------------------------------- */
+
+const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
+
+/* i – VI – III – VII in D minor: the bass root, and the chord above it. */
+const BARS = [
+  { root: 38, chord: [62, 65, 69] },  // Dm
+  { root: 34, chord: [58, 62, 65] },  // Bb
+  { root: 41, chord: [60, 65, 69] },  // F
+  { root: 36, chord: [60, 64, 67] },  // C
+];
+
+/* Sixteen steps to the bar. -1 is a rest, 0–2 pick a note out of the chord. */
+const LEAD = [
+  [0, -1, 2, -1, 1, -1, -1, 2, -1, 0, -1, -1, 2, -1, 1, -1],
+  [2, -1, 1, -1, 0, -1, -1, 1, -1, 2, -1, -1, 0, -1, -1, -1],
+  [0, -1, 1, -1, 2, -1, 1, -1, 0, -1, -1, 2, -1, -1, 1, -1],
+  [2, -1, -1, 1, -1, 0, -1, -1, 1, -1, 2, -1, -1, -1, -1, -1],
+];
+const KICK = [0, 6, 8];
+const SNAP = [4, 12];
+const HAT = [0, 2, 4, 6, 8, 10, 12, 14];
+const BASS = [0, 3, 6, 8, 11, 14];
 
 const Sound = {
-  ctx: null, gain: null, timer: null, playing: false, level: 0.5,
-  scale: [0, 3, 5, 7, 10, 12, 15, 19],   // minor pentatonic-ish, two octaves
-  root: 146.83,                           // D3
+  ctx: null, master: null, delay: null, noise: null,
+  playing: false, level: 0.5,
+  step: 0, nextTime: 0, timer: null, queue: [], raf: null,
+  bpm: 92,
+
+  get stepDur() { return 60 / this.bpm / 4; },
+
+  /* Takes an optional context so the track can be rendered offline and checked. */
+  build(ctx) {
+    if (!ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return false;
+      ctx = new AC();
+    }
+    this.ctx = ctx;
+
+    this.master = ctx.createGain();
+    this.master.gain.value = this.level * 0.95;
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -16;
+    comp.ratio.value = 4;
+    this.master.connect(comp).connect(ctx.destination);
+
+    const delay = ctx.createDelay(1);
+    delay.delayTime.value = this.stepDur * 3;      // dotted eighth
+    const fb = ctx.createGain(); fb.gain.value = 0.34;
+    const wet = ctx.createGain(); wet.gain.value = 0.28;
+    delay.connect(fb).connect(delay);
+    delay.connect(wet).connect(this.master);
+    this.delay = delay;
+
+    const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.4), ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    this.noise = buf;
+    return true;
+  },
+
+  /* --- voices --- */
+
+  kick(t) {
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.frequency.setValueAtTime(124, t);
+    o.frequency.exponentialRampToValueAtTime(46, t + 0.11);
+    g.gain.setValueAtTime(0.85, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
+    o.connect(g).connect(this.master);
+    o.start(t); o.stop(t + 0.26);
+  },
+
+  hat(t, accent) {
+    const s = this.ctx.createBufferSource();
+    const hp = this.ctx.createBiquadFilter();
+    const g = this.ctx.createGain();
+    s.buffer = this.noise;
+    hp.type = "highpass";
+    hp.frequency.value = 7600;
+    const dur = accent ? 0.075 : 0.035;
+    g.gain.setValueAtTime(accent ? 0.16 : 0.085, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    s.connect(hp).connect(g).connect(this.master);
+    s.start(t); s.stop(t + dur + 0.02);
+  },
+
+  snap(t) {
+    const s = this.ctx.createBufferSource();
+    const bp = this.ctx.createBiquadFilter();
+    const g = this.ctx.createGain();
+    s.buffer = this.noise;
+    bp.type = "bandpass";
+    bp.frequency.value = 1900;
+    bp.Q.value = 1.1;
+    g.gain.setValueAtTime(0.3, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+    s.connect(bp).connect(g).connect(this.master);
+    s.start(t); s.stop(t + 0.17);
+  },
+
+  bass(t, midi) {
+    const o = this.ctx.createOscillator();
+    const lp = this.ctx.createBiquadFilter();
+    const g = this.ctx.createGain();
+    o.type = "sawtooth";
+    o.frequency.value = mtof(midi);
+    lp.type = "lowpass";
+    lp.Q.value = 6;
+    lp.frequency.setValueAtTime(900, t);
+    lp.frequency.exponentialRampToValueAtTime(260, t + 0.18);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.34, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+    o.connect(lp).connect(g).connect(this.master);
+    o.start(t); o.stop(t + 0.24);
+  },
+
+  pad(t, midis, dur) {
+    const lp = this.ctx.createBiquadFilter();
+    const g = this.ctx.createGain();
+    lp.type = "lowpass";
+    lp.frequency.value = 1500;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.1, t + 0.5);
+    g.gain.setValueAtTime(0.1, t + dur * 0.7);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    lp.connect(g).connect(this.master);
+    for (const m of midis) {
+      for (const cents of [-7, 7]) {
+        const o = this.ctx.createOscillator();
+        o.type = "triangle";
+        o.frequency.value = mtof(m - 12);
+        o.detune.value = cents;
+        o.connect(lp);
+        o.start(t); o.stop(t + dur + 0.1);
+      }
+    }
+  },
+
+  lead(t, midi) {
+    const o = this.ctx.createOscillator();
+    const lp = this.ctx.createBiquadFilter();
+    const g = this.ctx.createGain();
+    o.type = "square";
+    o.frequency.value = mtof(midi);
+    lp.type = "lowpass";
+    lp.frequency.value = 2600;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.13, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+    o.connect(lp).connect(g);
+    g.connect(this.master);
+    g.connect(this.delay);
+    o.start(t); o.stop(t + 0.18);
+  },
+
+  /* --- sequencer --- */
+
+  schedule(i, t) {
+    const bar = Math.floor(i / 16);
+    const s = i % 16;
+    const B = BARS[bar];
+    if (KICK.includes(s)) this.kick(t);
+    if (SNAP.includes(s)) this.snap(t);
+    if (HAT.includes(s)) this.hat(t, s % 4 === 2);
+    if (BASS.includes(s)) this.bass(t, B.root);
+    if (s === 0) this.pad(t, B.chord, this.stepDur * 15.4);
+    const n = LEAD[bar][s];
+    if (n >= 0) this.lead(t, B.chord[n] + (s === 0 ? 12 : 0));
+    this.queue.push({ s, t });
+  },
 
   start() {
     if (this.playing) return;
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return;
-    this.ctx = this.ctx || new AC();
+    if (!this.ctx && !this.build()) return;
     this.ctx.resume();
-
-    this.gain = this.ctx.createGain();
-    this.gain.gain.value = this.level * 0.5;
-    const filter = this.ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 1800;
-    filter.Q.value = 0.7;
-    this.gain.connect(filter).connect(this.ctx.destination);
-
     this.playing = true;
-    const step = () => {
-      if (!this.playing) return;
-      this.voice(this.root * Math.pow(2, this.scale[Math.floor(Math.random() * this.scale.length)] / 12), 2.6);
-      if (Math.random() < 0.4) this.voice(this.root / 2, 4.5, 0.35);
-      this.timer = setTimeout(step, 900 + Math.random() * 1100);
-    };
-    step();
-    this.sync();
-  },
+    this.step = 0;
+    this.queue = [];
+    this.nextTime = this.ctx.currentTime + 0.08;
+    this.master.gain.setTargetAtTime(this.level * 0.95, this.ctx.currentTime, 0.05);
 
-  voice(freq, dur, amp = 0.22) {
-    const t = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const env = this.ctx.createGain();
-    osc.type = "triangle";
-    osc.frequency.value = freq;
-    env.gain.setValueAtTime(0.0001, t);
-    env.gain.exponentialRampToValueAtTime(amp, t + 0.35);
-    env.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    osc.connect(env).connect(this.gain);
-    osc.start(t);
-    osc.stop(t + dur + 0.1);
+    this.timer = setInterval(() => {
+      if (!this.playing) return;
+      while (this.nextTime < this.ctx.currentTime + 0.14) {
+        this.schedule(this.step, this.nextTime);
+        this.nextTime += this.stepDur;
+        this.step = (this.step + 1) % 64;
+      }
+    }, 25);
+
+    const paint = () => {
+      if (!this.playing) return;
+      const now = this.ctx.currentTime;
+      let cur = null;
+      while (this.queue.length && this.queue[0].t <= now) cur = this.queue.shift().s;
+      if (cur !== null) {
+        const leds = document.querySelectorAll(".player .steps i");
+        leds.forEach((el, k) => el.classList.toggle("on", k === cur));
+      }
+      this.raf = requestAnimationFrame(paint);
+    };
+    this.raf = requestAnimationFrame(paint);
+    this.sync();
   },
 
   stop() {
     this.playing = false;
-    clearTimeout(this.timer);
-    if (this.gain) this.gain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.2);
+    clearInterval(this.timer);
+    cancelAnimationFrame(this.raf);
+    this.queue = [];
+    if (this.master) this.master.gain.setTargetAtTime(0, this.ctx.currentTime, 0.08);
+    document.querySelectorAll(".player .steps i").forEach((el) => el.classList.remove("on"));
     this.sync();
   },
 
   setLevel(v) {
     this.level = v;
-    if (this.gain) this.gain.gain.setTargetAtTime(v * 0.5, this.ctx.currentTime, 0.05);
+    if (this.master && this.playing) this.master.gain.setTargetAtTime(v * 0.55, this.ctx.currentTime, 0.05);
   },
 
   sync() {
@@ -873,8 +1046,9 @@ function openSound() {
   box.innerHTML =
     `<div class="face">` +
       `<span class="led" aria-hidden="true"></span>` +
-      `<div class="meta"><b>Workspace theme</b><span>Generated live · no file, no autoplay</span></div>` +
+      `<div class="meta"><b>Night Build</b><span>92 BPM · sequenced live, no file, no autoplay</span></div>` +
     `</div>` +
+    `<div class="steps" aria-hidden="true">${"<i></i>".repeat(16)}</div>` +
     `<div class="controls">` +
       `<button class="btn toggle" type="button">Play</button>` +
       `<label class="vol">Volume<input type="range" min="0" max="100" value="50" aria-label="Volume"></label>` +
@@ -885,8 +1059,8 @@ function openSound() {
 
   makeWindow("sound", {
     title: "Sound",
-    x: clamp(20, L.w - 360, L.w - 320), y: clamp(60, L.h - 220, L.h - 160),
-    w: 300, h: 132,
+    x: clamp(20, L.w - 360, L.w - 320), y: clamp(60, L.h - 250, L.h - 190),
+    w: 300, h: 162,
     content: box,
   });
   Sound.sync();
