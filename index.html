@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maxim Dnestreanschii — Software Engineer</title>
+<meta name="description" content="Software engineer at 2ai and SDU student in Sønderborg. I build AI systems that go into production and stay there.">
+<meta name="theme-color" content="#3d4148">
+<meta property="og:title" content="Maxim Dnestreanschii — Software Engineer">
+<meta property="og:description" content="Agents with real tools, data pipelines, and the services around them. Council of Europe Democracy Hackathon finalist, 2026.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23aaa'/><rect x='1' y='1' width='14' height='14' fill='none' stroke='%23000'/><path d='M4 12V4l4 5 4-5v8' fill='none' stroke='%23000' stroke-width='1.6'/></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="screen">
+
+  <!-- Vertical application menu, top-left. Detaches from nothing; it is always here. -->
+  <nav id="menu" aria-label="Main menu">
+    <div class="menu-title">Maxim</div>
+    <ul>
+      <li data-act="open:readme">Info</li>
+      <li class="has-sub" data-sub="work">Work<span class="arrow"></span>
+        <ul class="submenu" id="sub-work"></ul>
+      </li>
+      <li class="has-sub" data-sub="windows">Windows<span class="arrow"></span>
+        <ul class="submenu" id="sub-windows"></ul>
+      </li>
+      <li data-act="open:terminal">Terminal</li>
+      <li data-act="open:cv">Print CV</li>
+      <li data-act="open:contact">Hire</li>
+    </ul>
+  </nav>
+
+  <!-- Windows are injected here -->
+  <div id="desktop"></div>
+
+  <!-- Dock, right edge -->
+  <aside id="dock" aria-label="Dock">
+    <button class="tile" data-act="open:viewer" aria-label="Workspace">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="2.5" y="4.5" width="27" height="23" fill="#fff" stroke="#000"/>
+        <rect x="2.5" y="4.5" width="9" height="23" fill="#dcdcdc" stroke="#000"/>
+        <rect x="11.5" y="4.5" width="9" height="23" fill="#f2f2f2" stroke="#000"/>
+        <rect x="3.5" y="9.5" width="7" height="4" fill="#000"/>
+        <g stroke="#777"><path d="M13 11h6M13 15h6M13 19h4M22 11h6M22 15h5"/></g>
+      </svg>
+      <span>Workspace</span>
+    </button>
+    <button class="tile" data-act="open:readme" aria-label="Read Me">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M6.5 3.5h13l6 6v19h-19z" fill="#fff" stroke="#000"/>
+        <path d="M19.5 3.5v6h6" fill="none" stroke="#000"/>
+        <g stroke="#666"><path d="M10 14h12M10 18h12M10 22h8"/></g>
+      </svg>
+      <span>Read Me</span>
+    </button>
+    <button class="tile" data-act="open:terminal" aria-label="Terminal">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="3.5" y="4.5" width="25" height="23" fill="#111" stroke="#000"/>
+        <path d="M7 11l4 4-4 4" fill="none" stroke="#dcdcdc" stroke-width="2"/>
+        <path d="M14 20h9" stroke="#dcdcdc" stroke-width="2"/>
+      </svg>
+      <span>Terminal</span>
+    </button>
+    <button class="tile" data-act="open:cv" aria-label="Curriculum Vitae">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="5.5" y="2.5" width="21" height="27" fill="#fff" stroke="#000"/>
+        <rect x="9" y="6" width="8" height="8" fill="#c9c9c9" stroke="#000" stroke-width=".8"/>
+        <g stroke="#666"><path d="M9 18h14M9 21.5h14M9 25h10"/></g>
+      </svg>
+      <span>CV</span>
+    </button>
+    <button class="tile" data-act="open:contact" aria-label="Hire">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="3.5" y="7.5" width="25" height="17" fill="#fff" stroke="#000"/>
+        <path d="M3.5 7.5L16 17 28.5 7.5" fill="none" stroke="#000"/>
+      </svg>
+      <span class="dot" aria-hidden="true"></span>
+      <span>Hire</span>
+    </button>
+  </aside>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
