@@ -765,3 +765,38 @@ button { font: inherit; color: inherit; }
   background: var(--oxide);
   border-color: #6d2312;
 }
+
+/* Two sources in one player: the generated track, and a streamed one */
+.player .tabs { display: flex; margin-bottom: 10px; }
+.player .tabs button {
+  flex: 1;
+  background: var(--face);
+  border: 1px solid var(--ink);
+  box-shadow: inset 1px 1px 0 var(--face-hi), inset -1px -1px 0 var(--face-lo);
+  padding: 3px 6px 4px;
+  font-size: 11.5px;
+  cursor: pointer;
+}
+.player .tabs button + button { border-left: 0; }
+.player .tabs button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: inset 1px 1px 0 #333;
+}
+.player .panes { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.player .pane { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; }
+.player .pane[hidden] { display: none; }
+.player .spotify { justify-content: flex-start; }
+.player .spotify iframe {
+  width: 100%;
+  height: 152px;
+  border: 1px solid var(--ink);
+  display: block;
+  background: #121212;
+}
+.player .spotify p {
+  margin: 7px 1px 0;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--ink-soft);
+}

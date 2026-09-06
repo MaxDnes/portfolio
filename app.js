@@ -326,8 +326,6 @@ const TREE = [
       </div>
       <h2>What I am looking for</h2>
       <ul>
-        <li>Summer internships in applied AI, privacy engineering or information integrity</li>
-        <li>Research assistantships and thesis collaborations, at a university or a lab</li>
         <li>Seminars, hackathons and programmes where the work is building something rather than talking about it</li>
       </ul>
       <p><a class="btn" href="mailto:dnestreanschiimaxim780@gmail.com?subject=Hello%20Maxim">Write to me</a></p>
@@ -1039,11 +1037,29 @@ const Sound = {
   },
 };
 
+/* Two sources: the track this page generates, and one it does not own.
+   The Spotify frame is only built when you ask for it, and nothing autoplays. */
+const TRACKS = {
+  build: { label: "Night Build", h: 200 },
+  vir2ual: { label: "vir2ual", h: 292, id: "4lkLfhtPowsGvfkEeMjchn" },
+};
+
 function openSound() {
   const L = layout();
   const box = document.createElement("div");
   box.className = "player";
-  box.innerHTML =
+
+  const tabs = document.createElement("div");
+  tabs.className = "tabs";
+  tabs.setAttribute("role", "group");
+  tabs.setAttribute("aria-label", "Choose a track");
+
+  const panes = document.createElement("div");
+  panes.className = "panes";
+
+  const gen = document.createElement("div");
+  gen.className = "pane";
+  gen.innerHTML =
     `<div class="face">` +
       `<span class="led" aria-hidden="true"></span>` +
       `<div class="meta"><b>Night Build</b><span>92 BPM · sequenced live, no file, no autoplay</span></div>` +
@@ -1053,16 +1069,50 @@ function openSound() {
       `<button class="btn toggle" type="button">Play</button>` +
       `<label class="vol">Volume<input type="range" min="0" max="100" value="50" aria-label="Volume"></label>` +
     `</div>`;
+  gen.querySelector(".toggle").addEventListener("click", () => (Sound.playing ? Sound.stop() : Sound.start()));
+  gen.querySelector("input").addEventListener("input", (e) => Sound.setLevel(e.target.value / 100));
 
-  box.querySelector(".toggle").addEventListener("click", () => (Sound.playing ? Sound.stop() : Sound.start()));
-  box.querySelector("input").addEventListener("input", (e) => Sound.setLevel(e.target.value / 100));
+  const ext = document.createElement("div");
+  ext.className = "pane spotify";
+  ext.hidden = true;
+
+  panes.append(gen, ext);
+
+  const show = (key) => {
+    Sound.stop();                       // never two things playing at once
+    gen.hidden = key !== "build";
+    ext.hidden = key === "build";
+    if (key !== "build" && !ext.childElementCount) {
+      ext.innerHTML =
+        `<iframe title="vir2ual by Bupin on Spotify" loading="lazy" allow="encrypted-media"` +
+        ` src="https://open.spotify.com/embed/track/${TRACKS.vir2ual.id}?theme=0"></iframe>` +
+        `<p>Streamed from Spotify, not hosted here.</p>`;
+    }
+    for (const b of tabs.children) b.setAttribute("aria-pressed", String(b.dataset.track === key));
+    const w = wins.get("sound");
+    if (w) w.el.style.height = TRACKS[key].h + "px";
+  };
+
+  for (const [key, t] of Object.entries(TRACKS)) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.dataset.track = key;
+    b.textContent = t.label;
+    b.addEventListener("click", () => show(key));
+    tabs.append(b);
+  }
+
+  box.append(tabs, panes);
 
   makeWindow("sound", {
     title: "Sound",
-    x: clamp(20, L.w - 360, L.w - 320), y: clamp(60, L.h - 250, L.h - 190),
-    w: 300, h: 162,
+    x: clamp(20, L.w - 360, L.w - 320),
+    y: clamp(60, L.h - 300, L.h - 210),
+    w: 300, h: TRACKS.build.h,
     content: box,
   });
+
+  show("build");
   Sound.sync();
 }
 
