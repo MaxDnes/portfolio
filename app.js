@@ -29,7 +29,7 @@ const TREE = [
       <ul>
         <li>Agent tooling and the company data discovery service at 2ai</li>
         <li>Second year of a BSc in Software Engineering at SDU, 2025–2028</li>
-        <li>Open to summer internships, research assistantships and thesis collaborations in applied AI, privacy engineering and information integrity</li>
+        <li>Building for hackathons and collaborations in applied AI and privacy engineering. Not looking for internships at the moment</li>
       </ul>
       <p><a class="btn" href="#" data-open="contact">Get in touch</a><a class="btn" href="#" data-open="cv">Read the CV</a></p>
     `)
@@ -711,7 +711,7 @@ const SCRIPT = [
   ["out", "the interfaces on top and the deployments underneath."],
   ["out", ""],
   ["cmd", "ls open-to/"],
-  ["out", "summer-internship/   research-assistant/   thesis-collaboration/"],
+  ["out", "hackathons/   collaborations/   privacy-engineering/"],
   ["out", ""],
   ["cmd", "cat contact"],
   ["out", "dnestreanschiimaxim780@gmail.com   ·   +45 71 42 28 42"],
