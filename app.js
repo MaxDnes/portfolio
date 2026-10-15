@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------
-   Workspace — a small window server, a column browser, and the content.
+   Workspace: a small window server, a column browser, and the content.
    No dependencies. Everything here runs on load.
    ------------------------------------------------------------------ */
 
@@ -24,10 +24,10 @@ const TREE = [
       <p class="kicker">Software engineer · Sønderborg, Denmark</p>
       <p>I study software engineering at the University of Southern Denmark and work part-time as an engineer at 2ai. I build AI systems that go into production and stay there: agents with real tools, the pipelines that feed them, and the web and backend services around them.</p>
       <p>Most of what I ship is the unglamorous half. Which tool an agent is allowed to call. The evaluation run that catches a bad answer before a customer reads it. The container that has to come back up on its own at three in the morning. I run the deployments for the services I own, so I find out quickly when I got that wrong.</p>
-      <p>In June 2026 I went to Strasbourg with <b>team ALL FOR ONE</b> from Moldova for <i>Hack the Hate, Renew Democracy</i>, the Council of Europe's democracy hackathon. We were named a finalist — one of four teams out of twenty, from sixteen countries — for <a href="#" data-open="agnospeech">AgnoSpeech</a>, and the Council published a <a href="https://www.coe.int/en/web/new-democratic-pact-for-europe/2026-hackathon" target="_blank" rel="noopener">write-up of it</a>. That week moved what I want to work on: systems where the interesting constraint is what the software must refuse to do.</p>
+      <p>In June 2026 I went to Strasbourg with <b>team ALL FOR ONE</b> from Moldova for <i>Hack the Hate, Renew Democracy</i>, the Council of Europe's democracy hackathon. We were named a finalist, one of four teams out of twenty from sixteen countries, for <a href="#" data-open="agnospeech">AgnoSpeech</a>, and the Council published a <a href="https://www.coe.int/en/web/new-democratic-pact-for-europe/2026-hackathon" target="_blank" rel="noopener">write-up of it</a>. That week moved what I want to work on: systems where the interesting constraint is what the software must refuse to do.</p>
       <h2>Right now</h2>
       <ul>
-        <li>Agent tooling and the company data discovery service at 2ai</li>
+        <li>The AI landing page generator, company discovery and Meta Ads sync at 2ai</li>
         <li>Second year of a BSc in Software Engineering at SDU, 2025–2028</li>
         <li>Building for hackathons and collaborations in applied AI and privacy engineering. Not looking for internships at the moment</li>
       </ul>
@@ -43,10 +43,12 @@ const TREE = [
           <p>2ai builds AI products for companies in southern Denmark. I work across the stack, mostly on the parts that have to survive contact with a customer.</p>
           <h2>What I own</h2>
           <ul>
+            <li><b>AI landing page generator.</b> Real pages that already work for real businesses become reusable templates, and the system fills them with a client's own text, photos and colors. The customer success team uses it for client pages today. <a href="#" data-open="landing-pages">More on it</a>.</li>
+            <li><b>Meta Ads sync.</b> Keeps every client's Facebook and Instagram ad data current: batched Graph API reads, webhooks, queues, and a rate limiter that keeps Meta from throttling the whole account.</li>
             <li><b>Company data discovery.</b> A service that reads company websites and public registries and fills in customer records. It is measured on how often it returns the right company rather than a plausible namesake, because that is where this kind of tool actually breaks.</li>
             <li><b>Agent tooling.</b> Which tools exist, what belongs in a skill, and the MCP integrations that connect an agent to systems that can change something.</li>
             <li><b>Evaluation harnesses.</b> An agent that is right most of the time is a support ticket generator. The eval run is what tells us which of the two we shipped.</li>
-            <li><b>Deployment.</b> Docker on Coolify and Vercel, secrets, health checks, error reporting — for every service I put my name on.</li>
+            <li><b>Deployment.</b> Docker on Coolify and Vercel, secrets, health checks and error reporting for every service I put my name on.</li>
           </ul>
           <h2>Working with</h2>
           <div class="rows">
@@ -65,7 +67,7 @@ const TREE = [
           <ul>
             <li>Wrote and maintained backend services in C# and ASP.NET: the API endpoints and the data access layer under them.</li>
             <li>Designed MSSQL schemas and wrote the queries against them, using Entity Framework for persistence and for the migration that came with every schema change.</li>
-            <li>Worked in an agile team and learned how a change gets from a code review onto a server — the half of the job that a course does not cover.</li>
+            <li>Worked in an agile team and learned how a change gets from a code review onto a server, the half of the job that a course does not cover.</li>
           </ul>
         `)
       },
@@ -74,24 +76,43 @@ const TREE = [
   {
     name: "Projects", kind: "dir", children: [
       {
+        name: "Landing pages", kind: "doc", body: doc(`
+          <span class="flag">In use by the customer success team</span>
+          <h1>AI landing page generator</h1>
+          <p class="kicker">From a plain-language brief to a published page · 2ai · 2026</p>
+          <p>A landing page is where you end up after clicking an ad. Our customer success team built one by hand for every client, and it ate a big part of their week. The goal: describe the page in plain words and get a finished, on-brand page back.</p>
+          <p>We did not invent designs. We took pages that already worked for real businesses and turned them into templates. Every website is built differently, so the importer has to work out where each section starts, which text and images are editable, and how long a field can get before the layout breaks. It mixes plain rules with an LLM, and it now splits every page in our test set the way a person would. For a long time, fixing one page broke three others. It only got better once I stopped patching examples and looked for rules that held across all of them.</p>
+          <p>Filling a page taught me the most about context. More information about a business did not mean better writing. Past a point the model lost focus, so each section's writer now gets only the facts it needs. A separate matcher places the client's own photos by content and aspect ratio, so a portrait never lands in a wide banner.</p>
+          <h2>My part</h2>
+          <ul>
+            <li>The template importer and section detection</li>
+            <li>The photo matcher and per-field length limits</li>
+            <li>Editor work: conflict-safe autosave, element picking for the AI chat</li>
+            <li>Rolling privacy fixes out to pages that were already live, with rollback</li>
+          </ul>
+          <h2>What I learned that is not code</h2>
+          <p>Hours with the customer success team on why a section goes where it does and when a headline feels off. Most of the design and marketing I know came from those conversations.</p>
+        `)
+      },
+      {
         name: "AgnoSpeech", kind: "doc", body: doc(`
           <span class="flag">Council of Europe finalist · 4 of 20 teams</span>
           <h1>AgnoSpeech</h1>
           <p class="kicker">Team ALL FOR ONE, Moldova · Hack the Hate, Renew Democracy · Palais de l'Europe, Strasbourg · 17–19 June 2026</p>
-          <p>Hate speech detectors read raw text, and raw text hands them a shortcut. Dialect and writing style predict harm well enough that a model quietly starts scoring who wrote something instead of what it says. The same text also fingerprints its author, which is why the records a helpline collects cannot simply be handed to a researcher — the tools built to defend a community end up exposing it.</p>
+          <p>Hate speech detectors read raw text, and raw text hands them a shortcut. Dialect and writing style predict harm well enough that a model quietly starts scoring who wrote something instead of what it says. The same text also fingerprints its author, which is why the records a helpline collects cannot simply be handed to a researcher. The tools built to defend a community end up exposing it.</p>
           <p>AgnoSpeech takes the identity out and leaves the evidence in. Most tools stop at deleting names; writing style alone still re-identifies an author. So it redacts identifiers, reduces each message to the content that carries the harm, checks that the meaning survived, and then runs an attacker against its own output to measure how much identity signal is left. The result is a number you can argue with rather than a promise you have to trust. All of it runs on a laptop CPU: no cloud call, no raw text leaving the machine.</p>
           <h2>My part</h2>
           <ul>
-            <li>Owned the backend pipeline — the transformation, the attacker that scores it, and everything between them.</li>
+            <li>Owned the backend pipeline: the transformation, the attacker that scores it, and everything between them.</li>
             <li>Built and deployed the workbench the jury used to run it live.</li>
           </ul>
           <h2>The result</h2>
-          <p>Twenty teams from sixteen countries competed across four challenges at <i>Hack the Hate, Renew Democracy</i>. Team ALL FOR ONE was named a finalist — one of the four teams the Council of Europe singled out — on the privacy-preserving hate speech detection challenge, mentored by a researcher from the Technical University of Munich. The Council published a write-up of the project on its own site.</p>
+          <p>Twenty teams from sixteen countries competed across four challenges at <i>Hack the Hate, Renew Democracy</i>. Team ALL FOR ONE was named a finalist, one of the four teams the Council of Europe singled out, on the privacy-preserving hate speech detection challenge, mentored by a researcher from the Technical University of Munich. The Council published a write-up of the project on its own site.</p>
           <h2>The code</h2>
           <div class="rows">
-            <div><b>AgnoSpeech</b><span><a href="https://github.com/AllForOne-md/AgnoSpeech" target="_blank" rel="noopener">AllForOne-md/AgnoSpeech</a> — the PrivHSD implementations</span></div>
-            <div><b>Workbench</b><span><a href="https://github.com/AllForOne-md/AgnoSpeech-deployed" target="_blank" rel="noopener">AgnoSpeech-deployed</a> — the on-device privatization workbench I built and shipped</span></div>
-            <div><b>Core</b><span><a href="https://github.com/AllForOne-md/agnospeech-core" target="_blank" rel="noopener">agnospeech-core</a> — the lexicon-free tiered privatization mechanism</span></div>
+            <div><b>AgnoSpeech</b><span><a href="https://github.com/AllForOne-md/AgnoSpeech" target="_blank" rel="noopener">AllForOne-md/AgnoSpeech</a>: the PrivHSD implementations</span></div>
+            <div><b>Workbench</b><span><a href="https://github.com/AllForOne-md/AgnoSpeech-deployed" target="_blank" rel="noopener">AgnoSpeech-deployed</a>: the on-device privatization workbench I built and shipped</span></div>
+            <div><b>Core</b><span><a href="https://github.com/AllForOne-md/agnospeech-core" target="_blank" rel="noopener">agnospeech-core</a>: the lexicon-free tiered privatization mechanism</span></div>
           </div>
           <p><a class="btn" href="https://www.coe.int/en/web/new-democratic-pact-for-europe/2026-hackathon" target="_blank" rel="noopener">Read it on coe.int</a><a class="btn" href="https://github.com/AllForOne-md" target="_blank" rel="noopener">All the repos</a></p>
         `)
@@ -100,7 +121,7 @@ const TREE = [
         name: "Tom", kind: "doc", body: doc(`
           <h1>Tom</h1>
           <p class="kicker">An internal AI colleague with a physical body · 2ai</p>
-          <p>Tom's memory lives in a git repository. Anything he believes is a diff a person can read, review and revert — which sounds like an odd design decision right up until the first time an agent quietly learns something wrong and nobody can find where.</p>
+          <p>Tom's memory lives in a git repository. Anything he believes is a diff a person can read, review and revert. That sounds like an odd design decision right up until the first time an agent quietly learns something wrong and nobody can find where.</p>
           <p>The same Tom answers in chat, in a dashboard, and out of a small desk robot. His tools unlock by role, so what he is able to do depends on who is asking.</p>
           <h2>My part</h2>
           <p>Deployment and remote access: getting one agent reachable from three surfaces without ending up with three slightly different Toms.</p>
@@ -111,7 +132,7 @@ const TREE = [
           <h1>Entity discovery</h1>
           <p class="kicker">Structured company records from open public sources · 2ai</p>
           <p>The service reads company websites and public registries and turns them into structured records. Easy to describe, and it fails in one specific place: name collisions. "Nordic Systems" is nine companies, and eight of them are the wrong answer.</p>
-          <p>So it is benchmarked on the thing that breaks — how often it picks the correct company rather than a convincing namesake — instead of on how many fields it managed to fill in.</p>
+          <p>So it is benchmarked on the thing that breaks, how often it picks the correct company rather than a convincing namesake, instead of on how many fields it managed to fill in.</p>
         `)
       },
       {
@@ -127,7 +148,7 @@ const TREE = [
           <h1>Heat Production Optimiser</h1>
           <p class="kicker">Second-semester project · SDU group 14 · C# and Avalonia · February – June 2026</p>
           <p>A desktop application that plans how a district heating grid should run. It reads the grid and its production units, takes a demand time series, and works out which units to fire when so the heat gets made for the least money.</p>
-          <p>Built as five modules with a clear seam between them — asset manager, source data manager, optimiser, result data manager, and the visualisation on top — each with its own interface and its own unit tests. That structure was the actual point of the semester: the optimiser can be rewritten without touching anything that reads a CSV.</p>
+          <p>Built as five modules with a clear seam between them: asset manager, source data manager, optimiser, result data manager, and the visualisation on top. Each has its own interface and its own unit tests. That structure was the actual point of the semester: the optimiser can be rewritten without touching anything that reads a CSV.</p>
           <div class="rows">
             <div><b>Stack</b><span>C#, .NET, Avalonia UI, MVVM, xUnit</span></div>
             <div><b>Source</b><span><a href="https://github.com/MaxDnes/HPO" target="_blank" rel="noopener">github.com/MaxDnes/HPO</a></span></div>
@@ -191,13 +212,13 @@ const TREE = [
       <p class="kicker">University of Southern Denmark · Sønderborg</p>
       <div class="rows">
         <div><b>Degree</b><span>BSc in Software Engineering, September 2025 – May 2028</span></div>
-        <div><b>Certification</b><span>Certiport IT Specialist — Device Configuration, Databases, Python (2024)</span></div>
+        <div><b>Certification</b><span>Certiport IT Specialist: Device Configuration, Databases, Python (2024)</span></div>
         <div><b>English</b><span>C1 · IELTS 8.0</span></div>
         <div><b>Romanian</b><span>Native</span></div>
         <div><b>Russian</b><span>Native</span></div>
       </div>
       <h2>Outside the curriculum</h2>
-      <p>Council of Europe Democracy Hackathon, Strasbourg, June 2026 — finalist. Working part-time at 2ai since April 2026, which is where most of what I know about running software actually came from.</p>
+      <p>Council of Europe Democracy Hackathon, Strasbourg, June 2026: finalist. Working part-time at 2ai since April 2026, which is where most of what I know about running software actually came from.</p>
     `)
   },
   {
@@ -216,8 +237,10 @@ const TREE = [
             <p class="org">2ai · Sønderborg, Denmark · hybrid</p>
             <ul>
               <li>Build across the web platform and the services behind it: Next.js dashboards, NestJS microservices, Docker deployments on Coolify and Vercel.</li>
-              <li>Design the tooling the agents use in production — which tools exist, what belongs in a skill, and the evaluation runs that catch a bad answer before a customer sees it.</li>
-              <li>Own the company data discovery service that fills customer records from public sources.</li>
+              <li>Design the tooling the agents use in production: which tools exist, what belongs in a skill, and the evaluation runs that catch a bad answer before a customer sees it.</li>
+              <li>Built most of the AI landing page generator: template import, section detection, photo matching and the editor's autosave. Used by our customer success team for client pages.</li>
+              <li>Own the company data discovery service that fills customer records from public sources, measured against a 125-company benchmark.</li>
+              <li>Meta Ads sync in the publishing service: batched Graph API reads, webhooks, queues, rate limits and retries.</li>
               <li>Run the deployments for the services I own: containers, secrets, health checks, error reporting.</li>
             </ul>
           </div>
@@ -239,8 +262,16 @@ const TREE = [
             <p class="org">Council of Europe Democracy Hackathon · finalist, 4 of 20 teams · Team ALL FOR ONE, Moldova</p>
             <ul>
               <li>Takes the identity out of hate speech records and leaves the evidence in, so a helpline or a researcher can share the data without exposing the people inside it.</li>
-              <li>Runs an attacker against its own output to measure the identity signal that survived. CPU only — nothing leaves the machine.</li>
+              <li>Runs an attacker against its own output to measure the identity signal that survived. CPU only, nothing leaves the machine.</li>
               <li>I owned the backend pipeline and the deployed workbench. <a href="https://www.coe.int/en/web/new-democratic-pact-for-europe/2026-hackathon" target="_blank" rel="noopener">Council of Europe write-up</a>.</li>
+            </ul>
+          </div>
+
+          <div class="entry">
+            <div class="top"><span class="role">AI landing page generator</span><span class="when">2ai</span></div>
+            <ul>
+              <li>Turns real, working web pages into templates and fills them with a client's text, photos and colors from a plain-language brief.</li>
+              <li>Rules plus an LLM detect page sections; each section's writer gets only the context it needs. <a href="#" data-open="landing-pages">Full write-up</a>.</li>
             </ul>
           </div>
 
@@ -288,7 +319,7 @@ const TREE = [
             <div><b>Romanian</b><span>Native</span></div>
             <div><b>Russian</b><span>Native</span></div>
             <div><b>English</b><span>C1 · IELTS 8.0</span></div>
-            <div><b>Certification</b><span>Certiport IT Specialist — Device Configuration, Databases, Python (2024)</span></div>
+            <div><b>Certification</b><span>Certiport IT Specialist: Device Configuration, Databases, Python (2024)</span></div>
           </div>
 
           <h2>Contact</h2>
@@ -675,6 +706,7 @@ function openNamed(key) {
     contact: "Contact",
     cv: "Curriculum vitae",
     agnospeech: "AgnoSpeech",
+    "landing-pages": "Landing pages",
     "pdf-eng": "Engineering CV.pdf",
     "pdf-policy": "Privacy CV.pdf",
   };
@@ -702,9 +734,9 @@ function pathTo(list, target, acc = []) {
 /* ---------- terminal ---------- */
 
 const SCRIPT = [
-  ["out", "Workspace 4.2 — Sønderborg. Last login from a train."],
+  ["out", "Workspace 4.2, Sønderborg. Last login from a train."],
   ["cmd", "whoami"],
-  ["out", "Maxim Dnestreanschii — software engineer. SDU, and 2ai part-time."],
+  ["out", "Maxim Dnestreanschii, software engineer. SDU, and 2ai part-time."],
   ["out", ""],
   ["cmd", "what --do-you-build"],
   ["out", "Agents with real tools, the pipelines that feed them,"],
@@ -782,7 +814,7 @@ function openPrefs() {
 
   const rest = document.createElement("div");
   rest.innerHTML =
-    `<h2>Sound</h2><p><b>Night Build</b> is a four-bar loop in D minor — kick, hats, bass, a held chord and a lead through a dotted-eighth delay. Every note is scheduled into the browser a fraction of a second before it sounds, so there is no audio file to download. It never starts on its own.</p>` +
+    `<h2>Sound</h2><p><b>Night Build</b> is a four-bar loop in D minor: kick, hats, bass, a held chord and a lead through a dotted-eighth delay. Every note is scheduled into the browser a fraction of a second before it sounds, so there is no audio file to download. It never starts on its own.</p>` +
     `<p><a class="btn" href="#" data-act="open:sound">Open the player</a></p>`;
   d.append(rest);
 
@@ -798,7 +830,7 @@ function openPrefs() {
 
 /* ---------- sound: a sequenced track, never automatic ----------------------
 
-   "Night Build" — 92 BPM, four bars in D minor on a loop: kick, hats, a
+   "Night Build": 92 BPM, four bars in D minor on a loop: kick, hats, a
    snap, a bass line, a held chord and a lead through a dotted-eighth delay.
    There is no audio file. Every note is scheduled into the Web Audio graph
    a fraction of a second before it sounds, which is why the step lights in
