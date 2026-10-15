@@ -81,12 +81,12 @@ const TREE = [
           <h1>AI landing page generator</h1>
           <p class="kicker">From a plain-language brief to a published page · 2ai · 2026</p>
           <p>A landing page is where you end up after clicking an ad. Our customer success team built one by hand for every client, and it ate a big part of their week. The goal: describe the page in plain words and get a finished, on-brand page back.</p>
-          <p>We did not invent designs. We took pages that already worked for real businesses and turned them into templates. Every website is built differently, so the importer has to work out where each section starts, which text and images are editable, and how long a field can get before the layout breaks. It mixes plain rules with an LLM, and it now splits every page in our test set the way a person would. For a long time, fixing one page broke three others. It only got better once I stopped patching examples and looked for rules that held across all of them.</p>
+          <p>We did not invent designs. We took pages that already worked for real businesses and turned them into templates. Every website is built differently, so the importer has to work out where each section starts, which text and images are editable, and how long a field can get before the layout breaks. It mixes plain rules with an LLM, checked against pages we labelled by hand. For a long time, fixing one page broke three others. It only got better once we stopped patching examples and looked for rules that held across all of them.</p>
           <p>Filling a page taught me the most about context. More information about a business did not mean better writing. Past a point the model lost focus, so each section's writer now gets only the facts it needs. A separate matcher places the client's own photos by content and aspect ratio, so a portrait never lands in a wide banner.</p>
           <h2>My part</h2>
           <ul>
-            <li>The template importer and section detection</li>
-            <li>The photo matcher and per-field length limits</li>
+            <li>Section detection in the template importer, checked against hand-labelled live pages</li>
+            <li>Parts of the photo matcher, and per-field length limits</li>
             <li>Editor work: conflict-safe autosave, element picking for the AI chat</li>
             <li>Rolling privacy fixes out to pages that were already live, with rollback</li>
           </ul>
@@ -238,7 +238,7 @@ const TREE = [
             <ul>
               <li>Build across the web platform and the services behind it: Next.js dashboards, NestJS microservices, Docker deployments on Coolify and Vercel.</li>
               <li>Design the tooling the agents use in production: which tools exist, what belongs in a skill, and the evaluation runs that catch a bad answer before a customer sees it.</li>
-              <li>Built most of the AI landing page generator: template import, section detection, photo matching and the editor's autosave. Used by our customer success team for client pages.</li>
+              <li>One of the main developers of the AI landing page generator: template import, section detection, photo matching and the editor's autosave. Used by our customer success team for client pages.</li>
               <li>Own the company data discovery service that fills customer records from public sources, measured against a 125-company benchmark.</li>
               <li>Meta Ads sync in the publishing service: batched Graph API reads, webhooks, queues, rate limits and retries.</li>
               <li>Run the deployments for the services I own: containers, secrets, health checks, error reporting.</li>
